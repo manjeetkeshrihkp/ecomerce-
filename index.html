@@ -936,716 +936,734 @@
 
     <div id="toast" class="toast">Added to Bag!</div>
 
-    <script>
-        /* --- CSS FIX: REMOVE WHITE SLIDER LINE FROM CART --- */
-        const style = document.createElement('style');
-        style.textContent = `
-            .cart-items::-webkit-scrollbar { display: none !important; }
-            .cart-items { -ms-overflow-style: none !important; scrollbar-width: none !important; }
-            .whatsapp-glow-btn {
-                display: flex; align-items: center; justify-content: center; gap: 10px;
-                width: 100%; padding: 15px; margin-bottom: 15px;
-                background-color: #25D366; color: white; text-decoration: none;
-                font-weight: 900; font-size: 14px; border-radius: 12px;
-                box-shadow: 0 0 10px rgba(37, 211, 102, 0.5);
-                animation: wa-glow 2s infinite ease-in-out;
-            }
-            @keyframes wa-glow {
-                0% { box-shadow: 0 0 5px rgba(37, 211, 102, 0.4); }
-                50% { box-shadow: 0 0 20px rgba(37, 211, 102, 0.8); }
-                100% { box-shadow: 0 0 5px rgba(37, 211, 102, 0.4); }
-            }
-        `;
-        document.head.appendChild(style);
-
-        /* --- SLIDER LOGIC --- */
-        let slideIndex = 0;
-        showSlides();
-        function showSlides() {
-            let slides = document.getElementsByClassName("slide");
-            let dots = document.getElementsByClassName("dot");
-            if(!slides.length) return;
-            for (let i = 0; i < slides.length; i++) { slides[i].style.display = "none"; slides[i].classList.remove("active"); }
-            slideIndex++;
-            if (slideIndex > slides.length) {slideIndex = 1}    
-            slides[slideIndex-1].style.display = "block"; slides[slideIndex-1].classList.add("active");
-            if(dots.length > 0) { for(let i=0; i<dots.length; i++) dots[i].classList.remove("active"); dots[slideIndex-1].classList.add("active"); }
-            setTimeout(showSlides, 3000); 
+   <script>
+    /* --- CSS FIX: REMOVE WHITE SLIDER LINE FROM CART --- */
+    const style = document.createElement('style');
+    style.textContent = `
+        .cart-items::-webkit-scrollbar { display: none !important; }
+        .cart-items { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+        .whatsapp-glow-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 15px; margin-bottom: 15px;
+            background-color: #25D366; color: white; text-decoration: none;
+            font-weight: 900; font-size: 14px; border-radius: 12px;
+            box-shadow: 0 0 10px rgba(37, 211, 102, 0.5);
+            animation: wa-glow 2s infinite ease-in-out;
         }
-        function currentSlide(n) { slideIndex = n; }
-
-        /* --- CIRCLE SCROLL --- */
-        function scrollCircles(amount) {
-            document.getElementById('circle-container').scrollBy({ left: amount, behavior: 'smooth' });
+        @keyframes wa-glow {
+            0% { box-shadow: 0 0 5px rgba(37, 211, 102, 0.4); }
+            50% { box-shadow: 0 0 20px rgba(37, 211, 102, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(37, 211, 102, 0.4); }
         }
+    `;
+    document.head.appendChild(style);
 
-        /* --- CLICK CIRCLE TO FILTER --- */
-        function filterByCircle(categoryName) {
-            const searchInput = document.getElementById('search-input');
-            const heroSlider = document.querySelector('.hero-slider');
-            const circleMenu = document.querySelector('.circle-menu-section');
-            const categoryButtons = document.querySelector('.categories');
-            
+    /* --- SLIDER LOGIC --- */
+    let slideIndex = 0;
+    showSlides();
+    function showSlides() {
+        let slides = document.getElementsByClassName("slide");
+        let dots = document.getElementsByClassName("dot");
+        if(!slides.length) return;
+        for (let i = 0; i < slides.length; i++) { slides[i].style.display = "none"; slides[i].classList.remove("active"); }
+        slideIndex++;
+        if (slideIndex > slides.length) {slideIndex = 1}    
+        slides[slideIndex-1].style.display = "block"; slides[slideIndex-1].classList.add("active");
+        if(dots.length > 0) { for(let i=0; i<dots.length; i++) dots[i].classList.remove("active"); dots[slideIndex-1].classList.add("active"); }
+        setTimeout(showSlides, 3000); 
+    }
+    function currentSlide(n) { slideIndex = n; }
+
+    /* --- CIRCLE SCROLL --- */
+    function scrollCircles(amount) {
+        document.getElementById('circle-container').scrollBy({ left: amount, behavior: 'smooth' });
+    }
+
+    /* --- CLICK CIRCLE TO FILTER --- */
+    function filterByCircle(categoryName) {
+        const searchInput = document.getElementById('search-input');
+        const heroSlider = document.querySelector('.hero-slider');
+        const circleMenu = document.querySelector('.circle-menu-section');
+        const categoryButtons = document.querySelector('.categories');
+        
+        searchInput.value = '';
+        heroSlider.classList.remove('hide-on-search');
+        circleMenu.classList.remove('hide-on-search');
+        categoryButtons.classList.remove('hide-on-search');
+
+        const cleanName = categoryName.toLowerCase().replace(/\s+/g, '');
+        const directBtn = document.querySelector(`.cat-btn[data-filter="${cleanName}"]`);
+        
+        if (directBtn) {
+            directBtn.click();
+        } else {
+            const cards = document.querySelectorAll('.product-card');
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            cards.forEach(card => {
+                const productCats = card.getAttribute('data-category').toLowerCase().split(' ');
+                if (productCats.includes(cleanName)) card.classList.remove('hidden');
+                else card.classList.add('hidden');
+            });
+            const grid = document.getElementById('product-grid');
+            const offset = grid.getBoundingClientRect().top + window.pageYOffset - 120;
+            window.scrollTo({top: offset, behavior: 'smooth'});
+        }
+    }
+
+    /* --- SEARCH LOGIC --- */
+    const searchInput = document.getElementById('search-input');
+    const heroSlider = document.querySelector('.hero-slider');
+    const circleMenu = document.querySelector('.circle-menu-section');
+    const categoryButtons = document.querySelector('.categories');
+
+    if(searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const searchText = e.target.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.product-card');
+
+            if (searchText.length > 0) {
+                heroSlider.classList.add('hide-on-search');
+                circleMenu.classList.add('hide-on-search');
+                categoryButtons.classList.add('hide-on-search');
+
+                cards.forEach(card => {
+                    const title = card.querySelector('.product-title').innerText.toLowerCase();
+                    const desc = card.hasAttribute('data-description') ? card.getAttribute('data-description').toLowerCase() : '';
+                    if (title.includes(searchText) || desc.includes(searchText)) card.classList.remove('hidden');
+                    else card.classList.add('hidden');
+                });
+            } else {
+                heroSlider.classList.remove('hide-on-search');
+                circleMenu.classList.remove('hide-on-search');
+                categoryButtons.classList.remove('hide-on-search');
+                const activeBtn = document.querySelector('.cat-btn.active');
+                if(activeBtn) activeBtn.click(); 
+                else cards.forEach(card => card.classList.remove('hidden'));
+            }
+        });
+    }
+
+    /* --- ALL CATEGORIES MODAL --- */
+    const allCategories = [
+        { name: "New In", img: "https://images.unsplash.com/photo-1485230946086-1d99d543b599?auto=format&fit=crop&w=200&q=80" },
+        { name: "Sale", img: "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&w=200&q=80" },
+        { name: "Men", img: "https://images.unsplash.com/photo-1488161628813-994252600322?auto=format&fit=crop&w=200&q=80" },
+        { name: "Women", img: "https://images.unsplash.com/photo-1525845859779-54d477ff291f?auto=format&fit=crop&w=200&q=80" },
+        { name: "Shoes", img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=200&q=80" },
+        { name: "Watches", img: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=200&q=80" },
+        { name: "Beauty", img: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=200&q=80" },
+        { name: "Tech", img: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=200&q=80" },
+        { name: "Sports", img: "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=200&q=80" },
+        { name: "Bags", img: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=200&q=80" },
+        { name: "Home", img: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=200&q=80" },
+        { name: "Kids", img: "https://images.unsplash.com/photo-1514090458221-65bb69cf63e6?auto=format&fit=crop&w=200&q=80" },
+        { name: "Luxury", img: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=200&q=80" },
+        { name: "Gifts", img: "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=200&q=80" },
+        { name: "Winter", img: "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?auto=format&fit=crop&w=200&q=80" },
+        { name: "Summer", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80" },
+        { name: "Denim", img: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=200&q=80" },
+        { name: "Formal", img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=200&q=80" },
+        { name: "Swim", img: "https://images.unsplash.com/photo-1565259160565-d6ee17992790?auto=format&fit=crop&w=200&q=80" },
+        { name: "Lingerie", img: "https://images.unsplash.com/photo-1597858604473-199623e1f726?auto=format&fit=crop&w=200&q=80" },
+        { name: "Sleep", img: "https://images.unsplash.com/photo-1621503375836-e88536d5a864?auto=format&fit=crop&w=200&q=80" },
+        { name: "Party", img: "https://images.unsplash.com/photo-1514525253440-b393452e8d26?auto=format&fit=crop&w=200&q=80" },
+        { name: "Office", img: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=200&q=80" },
+        { name: "Travel", img: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=200&q=80" },
+        { name: "Vintage", img: "https://images.unsplash.com/photo-1550920455-8321ca76b91d?auto=format&fit=crop&w=200&q=80" },
+        { name: "Pets", img: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=200&q=80" },
+        { name: "Art", img: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=200&q=80" },
+        { name: "Music", img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=200&q=80" },
+        { name: "Gaming", img: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&w=200&q=80" },
+        { name: "Books", img: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=200&q=80" },
+        { name: "Man Care", img: "https://images.unsplash.com/photo-1556228720-1987bad28426?auto=format&fit=crop&w=200&q=80" }
+    ];
+
+    function openAllCategories() {
+        const modal = document.getElementById('all-categories-modal');
+        const grid = document.getElementById('all-cats-grid');
+        if(!modal || !grid) return;
+        grid.innerHTML = '';
+        allCategories.forEach(cat => {
+            const item = document.createElement('div');
+            item.classList.add('circle-item');
+            item.innerHTML = `<div class="circle-img-box"><img src="${cat.img}" alt="${cat.name}"></div><p>${cat.name}</p>`;
+            item.addEventListener('click', () => { 
+                closeAllCategories(); 
+                filterByCircle(cat.name); 
+            });
+            grid.appendChild(item);
+        });
+        modal.classList.add('open');
+    }
+    function closeAllCategories() { document.getElementById('all-categories-modal').classList.remove('open'); }
+
+    /* --- BUTTON FILTER --- */
+    const filterBtns = document.querySelectorAll('.cat-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
             searchInput.value = '';
             heroSlider.classList.remove('hide-on-search');
             circleMenu.classList.remove('hide-on-search');
             categoryButtons.classList.remove('hide-on-search');
 
-            const cleanName = categoryName.toLowerCase().replace(/\s+/g, '');
-            const directBtn = document.querySelector(`.cat-btn[data-filter="${cleanName}"]`);
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filterValue = btn.getAttribute('data-filter');
+            const cards = document.querySelectorAll('.product-card');
             
-            if (directBtn) {
-                directBtn.click();
-            } else {
-                const cards = document.querySelectorAll('.product-card');
-                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-                cards.forEach(card => {
-                    const productCats = card.getAttribute('data-category').toLowerCase().split(' ');
-                    if (productCats.includes(cleanName)) card.classList.remove('hidden');
-                    else card.classList.add('hidden');
-                });
-                const grid = document.getElementById('product-grid');
-                const offset = grid.getBoundingClientRect().top + window.pageYOffset - 120;
-                window.scrollTo({top: offset, behavior: 'smooth'});
-            }
-        }
-
-        /* --- SEARCH LOGIC --- */
-        const searchInput = document.getElementById('search-input');
-        const heroSlider = document.querySelector('.hero-slider');
-        const circleMenu = document.querySelector('.circle-menu-section');
-        const categoryButtons = document.querySelector('.categories');
-
-        if(searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                const searchText = e.target.value.toLowerCase().trim();
-                const cards = document.querySelectorAll('.product-card');
-
-                if (searchText.length > 0) {
-                    heroSlider.classList.add('hide-on-search');
-                    circleMenu.classList.add('hide-on-search');
-                    categoryButtons.classList.add('hide-on-search');
-
-                    cards.forEach(card => {
-                        const title = card.querySelector('.product-title').innerText.toLowerCase();
-                        const desc = card.hasAttribute('data-description') ? card.getAttribute('data-description').toLowerCase() : '';
-                        if (title.includes(searchText) || desc.includes(searchText)) card.classList.remove('hidden');
-                        else card.classList.add('hidden');
-                    });
+            cards.forEach(card => {
+                const productCats = card.getAttribute('data-category').toLowerCase().split(' ');
+                if (filterValue === 'all' || productCats.includes(filterValue)) {
+                    card.classList.remove('hidden');
                 } else {
-                    heroSlider.classList.remove('hide-on-search');
-                    circleMenu.classList.remove('hide-on-search');
-                    categoryButtons.classList.remove('hide-on-search');
-                    const activeBtn = document.querySelector('.cat-btn.active');
-                    if(activeBtn) activeBtn.click(); 
-                    else cards.forEach(card => card.classList.remove('hidden'));
+                    card.classList.add('hidden');
                 }
             });
-        }
-
-        /* --- ALL CATEGORIES MODAL --- */
-        const allCategories = [
-            { name: "New In", img: "https://images.unsplash.com/photo-1485230946086-1d99d543b599?auto=format&fit=crop&w=200&q=80" },
-            { name: "Sale", img: "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&w=200&q=80" },
-            { name: "Men", img: "https://images.unsplash.com/photo-1488161628813-994252600322?auto=format&fit=crop&w=200&q=80" },
-            { name: "Women", img: "https://images.unsplash.com/photo-1525845859779-54d477ff291f?auto=format&fit=crop&w=200&q=80" },
-            { name: "Shoes", img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=200&q=80" },
-            { name: "Watches", img: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=200&q=80" },
-            { name: "Beauty", img: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=200&q=80" },
-            { name: "Tech", img: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=200&q=80" },
-            { name: "Sports", img: "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=200&q=80" },
-            { name: "Bags", img: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=200&q=80" },
-            { name: "Home", img: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=200&q=80" },
-            { name: "Kids", img: "https://images.unsplash.com/photo-1514090458221-65bb69cf63e6?auto=format&fit=crop&w=200&q=80" },
-            { name: "Luxury", img: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=200&q=80" },
-            { name: "Gifts", img: "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=200&q=80" },
-            { name: "Winter", img: "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?auto=format&fit=crop&w=200&q=80" },
-            { name: "Summer", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80" },
-            { name: "Denim", img: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=200&q=80" },
-            { name: "Formal", img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=200&q=80" },
-            { name: "Swim", img: "https://images.unsplash.com/photo-1565259160565-d6ee17992790?auto=format&fit=crop&w=200&q=80" },
-            { name: "Lingerie", img: "https://images.unsplash.com/photo-1597858604473-199623e1f726?auto=format&fit=crop&w=200&q=80" },
-            { name: "Sleep", img: "https://images.unsplash.com/photo-1621503375836-e88536d5a864?auto=format&fit=crop&w=200&q=80" },
-            { name: "Party", img: "https://images.unsplash.com/photo-1514525253440-b393452e8d26?auto=format&fit=crop&w=200&q=80" },
-            { name: "Office", img: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=200&q=80" },
-            { name: "Travel", img: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=200&q=80" },
-            { name: "Vintage", img: "https://images.unsplash.com/photo-1550920455-8321ca76b91d?auto=format&fit=crop&w=200&q=80" },
-            { name: "Pets", img: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=200&q=80" },
-            { name: "Art", img: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=200&q=80" },
-            { name: "Music", img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=200&q=80" },
-            { name: "Gaming", img: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?auto=format&fit=crop&w=200&q=80" },
-            { name: "Books", img: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=200&q=80" },
-            { name: "Man Care", img: "https://images.unsplash.com/photo-1556228720-1987bad28426?auto=format&fit=crop&w=200&q=80" }
-        ];
-
-        function openAllCategories() {
-            const modal = document.getElementById('all-categories-modal');
-            const grid = document.getElementById('all-cats-grid');
-            if(!modal || !grid) return;
-            grid.innerHTML = '';
-            allCategories.forEach(cat => {
-                const item = document.createElement('div');
-                item.classList.add('circle-item');
-                item.innerHTML = `<div class="circle-img-box"><img src="${cat.img}" alt="${cat.name}"></div><p>${cat.name}</p>`;
-                item.addEventListener('click', () => { 
-                    closeAllCategories(); 
-                    filterByCircle(cat.name); 
-                });
-                grid.appendChild(item);
-            });
-            modal.classList.add('open');
-        }
-        function closeAllCategories() { document.getElementById('all-categories-modal').classList.remove('open'); }
-
-        /* --- BUTTON FILTER --- */
-        const filterBtns = document.querySelectorAll('.cat-btn');
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                searchInput.value = '';
-                heroSlider.classList.remove('hide-on-search');
-                circleMenu.classList.remove('hide-on-search');
-                categoryButtons.classList.remove('hide-on-search');
-
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const filterValue = btn.getAttribute('data-filter');
-                const cards = document.querySelectorAll('.product-card');
-                
-                cards.forEach(card => {
-                    const productCats = card.getAttribute('data-category').toLowerCase().split(' ');
-                    if (filterValue === 'all' || productCats.includes(filterValue)) {
-                        card.classList.remove('hidden');
-                    } else {
-                        card.classList.add('hidden');
-                    }
-                });
-            });
         });
+    });
 
-        /* --- CART & CHECKOUT LOGIC --- */
-        let cart = JSON.parse(localStorage.getItem('omni_cart')) || [];
+    /* --- CART & CHECKOUT LOGIC --- */
+    let cart = JSON.parse(localStorage.getItem('omni_cart')) || [];
 
-        const cartCountEl = document.getElementById('cart-count');
-        const cartSidebar = document.getElementById('cart-sidebar');
-        const cartOverlay = document.getElementById('cart-overlay');
-        const cartItemsContainer = document.getElementById('cart-items');
-        const cartTotalEl = document.getElementById('cart-total'); 
-        const billSubtotalEl = document.getElementById('bill-subtotal');
-        const billTotalEl = document.getElementById('bill-total');
-        const checkoutModal = document.getElementById('checkout-modal');
-        const toast = document.getElementById('toast');
+    const cartCountEl = document.getElementById('cart-count');
+    const cartSidebar = document.getElementById('cart-sidebar');
+    const cartOverlay = document.getElementById('cart-overlay');
+    const cartItemsContainer = document.getElementById('cart-items');
+    const cartTotalEl = document.getElementById('cart-total'); 
+    const billSubtotalEl = document.getElementById('bill-subtotal');
+    const billTotalEl = document.getElementById('bill-total');
+    const checkoutModal = document.getElementById('checkout-modal');
+    const toast = document.getElementById('toast');
 
-        const PLATFORM_FEE = 5;
+    const PLATFORM_FEE = 5;
 
-        /* --- DYNAMIC DELIVERY CHARGE LOGIC (FIXED) --- */
-        function getDynamicDeliveryCharge() {
-            const history = JSON.parse(localStorage.getItem('omni_order_history')) || [];
-            const currentOrderNum = history.length + 1;
+    /* --- DYNAMIC DELIVERY CHARGE LOGIC (FIXED) --- */
+    function getDynamicDeliveryCharge() {
+        const history = JSON.parse(localStorage.getItem('omni_order_history')) || [];
+        const currentOrderNum = history.length + 1;
 
-            if (currentOrderNum === 1) return 19;
-            if (currentOrderNum === 2) return 19;
-            if (currentOrderNum === 3) return 24;
-            if (currentOrderNum === 4) return 24;
-            if (currentOrderNum === 5) return 29;
-            if (currentOrderNum === 6) return 24;
-            if (currentOrderNum === 7) return 29;
-            if (currentOrderNum === 8) return 34;
-            if (currentOrderNum === 9) return 29;
-            if (currentOrderNum === 10) return 19;
+        if (currentOrderNum === 1) return 19;
+        if (currentOrderNum === 2) return 19;
+        if (currentOrderNum === 3) return 24;
+        if (currentOrderNum === 4) return 24;
+        if (currentOrderNum === 5) return 29;
+        if (currentOrderNum === 6) return 24;
+        if (currentOrderNum === 7) return 29;
+        if (currentOrderNum === 8) return 34;
+        if (currentOrderNum === 9) return 29;
+        if (currentOrderNum === 10) return 19;
+        
+        return 34; // 11th order and beyond
+    }
+
+    updateCartUI();
+
+    // PERSISTENT CHECK: Check for pending payment state on reload
+    document.addEventListener('DOMContentLoaded', () => {
+        const paymentStatus = localStorage.getItem('omni_payment_pending');
+        if (paymentStatus === 'true') {
+            const method = localStorage.getItem('omni_payment_method');
+            // Restore based on which method was used
+            openCheckoutModal(true); 
             
-            return 34; // 11th order and beyond
-        }
-
-        updateCartUI();
-
-        // PERSISTENT CHECK: Check for pending payment state on reload
-        document.addEventListener('DOMContentLoaded', () => {
-            const paymentStatus = localStorage.getItem('omni_payment_pending');
-            if (paymentStatus === 'true') {
-                const method = localStorage.getItem('omni_payment_method');
-                // Restore based on which method was used
-                openCheckoutModal(true); 
-                
-                // Hide Step 1 & 2
-                document.getElementById('checkout-step-1').style.display = 'none';
-                document.getElementById('checkout-step-2').style.display = 'none';
-
-                if (method === 'qr') {
-                    document.getElementById('checkout-step-3').style.display = 'block';
-                    document.getElementById('checkout-step-4-app').style.display = 'none';
-                    
-                    // Re-render QR details
-                    let subtotal = 0;
-                    cart.forEach(item => subtotal += item.price);
-                    const dynamicDelivery = getDynamicDeliveryCharge();
-                    const finalTotal = subtotal + dynamicDelivery + PLATFORM_FEE;
-                    document.getElementById('qr-amount').innerText = '₹' + finalTotal.toLocaleString();
-                    
-                    const upiID = "manjeetkeshrihkp@oksbi";
-                    const upiLink = `upi://pay?pa=${upiID}&pn=OMNI&am=${finalTotal}&cu=INR`;
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
-                    document.getElementById('dynamic-qr').src = qrUrl;
-
-                    // Resume Timer with Robust Logic
-                    const expiry = localStorage.getItem('omni_payment_expiry');
-                    if (expiry) {
-                        let remaining = Math.floor((parseInt(expiry) - Date.now()) / 1000);
-                        if (remaining > 0) {
-                            startTimer(remaining, 'timer');
-                        } else {
-                            handleExpiredSession();
-                        }
-                    }
-
-                } else if (method === 'app') {
-                    document.getElementById('checkout-step-4-app').style.display = 'block';
-                    
-                    // Resume Timer
-                    const expiry = localStorage.getItem('omni_payment_expiry');
-                    if (expiry) {
-                        let remaining = Math.floor((parseInt(expiry) - Date.now()) / 1000);
-                        if (remaining > 0) {
-                            startTimer(remaining, 'app-timer');
-                        } else {
-                            handleExpiredSession();
-                        }
-                    }
-                }
-            }
-            
-            // Step-by-Step Data Capture
-            ['c-name', 'c-phone', 'c-hostel'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.addEventListener('change', () => {
-                    const user = { name: document.getElementById('c-name').value, phone: document.getElementById('c-phone').value, hostel: document.getElementById('c-hostel').value };
-                    localStorage.setItem('omni_user', JSON.stringify(user));
-                });
-            });
-        });
-
-        const addBtns = document.querySelectorAll('.add-to-cart-btn');
-        addBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const card = e.target.closest('.product-card');
-                const title = card.querySelector('.product-title').innerText;
-                const priceStr = card.querySelector('.current-price').innerText;
-                const imgSrc = card.querySelector('.product-img').src;
-                const price = parseInt(priceStr.replace(/[^\d]/g, ''));
-                cart.push({ title, price, imgSrc });
-                localStorage.setItem('omni_cart', JSON.stringify(cart));
-                updateCartUI();
-                showToast();
-            });
-        });
-
-        function updateCartUI() {
-            if(cartCountEl) {
-                cartCountEl.innerText = cart.length;
-                cartCountEl.style.display = cart.length > 0 ? 'block' : 'none';
-            }
-            if(cartItemsContainer) {
-                cartItemsContainer.innerHTML = '';
-                if (cart.length === 0) {
-                    cartItemsContainer.innerHTML = '<p class="empty-cart-msg">Your bag is empty.</p>';
-                    if(cartTotalEl) cartTotalEl.innerText = '₹0';
-                    return;
-                }
-                let subtotal = 0;
-                cart.forEach((item, index) => {
-                    subtotal += item.price;
-                    const itemEl = document.createElement('div');
-                    itemEl.classList.add('cart-item');
-                    itemEl.innerHTML = `<img src="${item.imgSrc}" class="cart-item-img"><div class="cart-item-details"><div class="cart-item-title">${item.title}</div><div class="cart-item-price">₹${item.price.toLocaleString()}</div></div><i class="fas fa-trash remove-btn" onclick="removeItem(${index})"></i>`;
-                    cartItemsContainer.appendChild(itemEl);
-                });
-                if(cartTotalEl) cartTotalEl.innerText = '₹' + subtotal.toLocaleString();
-            }
-        }
-
-        window.removeItem = function(index) {
-            cart.splice(index, 1);
-            localStorage.setItem('omni_cart', JSON.stringify(cart));
-            updateCartUI();
-        }
-
-        function showToast() {
-            toast.className = "toast show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-        }
-
-        function openCart() { cartSidebar.classList.add('open'); cartOverlay.classList.add('open'); }
-        function closeCart() { cartSidebar.classList.remove('open'); cartOverlay.classList.remove('open'); }
-
-        /* --- CHECKOUT FUNCTIONS --- */
-        window.openCheckoutModal = function(isReturningPayment = false) {
-            if (!isReturningPayment && cart.length === 0) { alert("Your bag is empty!"); return; }
-            const savedData = JSON.parse(localStorage.getItem('omni_user'));
-            if(savedData) {
-                document.getElementById('c-name').value = savedData.name || "";
-                document.getElementById('c-phone').value = savedData.phone || "";
-                document.getElementById('c-hostel').value = savedData.hostel || "";
-                document.getElementById('clear-data-section').style.display = 'flex';
-                document.getElementById('welcome-user-msg').innerText = `Welcome back, ${savedData.name}!`;
-            }
-            
-            // CALC TOTALS WITH DYNAMIC DELIVERY
-            let subtotal = 0;
-            cart.forEach(item => subtotal += item.price);
-            const dynamicDelivery = getDynamicDeliveryCharge();
-            const finalTotal = subtotal + dynamicDelivery + PLATFORM_FEE;
-            
-            billSubtotalEl.innerText = '₹' + subtotal.toLocaleString();
-            
-            // Find delivery row and update
-            const billRows = document.querySelectorAll('.bill-summary .bill-row');
-            if(billRows.length > 1) {
-                billRows[1].querySelector('span:last-child').innerText = '₹' + dynamicDelivery;
-            }
-
-            billTotalEl.innerText = '₹' + finalTotal.toLocaleString();
-            document.getElementById('payment-step-total').innerText = '₹' + finalTotal.toLocaleString();
-            
-            closeCart();
-            checkoutModal.classList.add('open');
-            if(isReturningPayment) {
-                document.getElementById('checkout-step-1').style.display = 'none';
-                document.getElementById('checkout-step-2').style.display = 'none';
-            } else {
-                document.getElementById('checkout-step-1').style.display = 'block';
-                document.getElementById('checkout-step-2').style.display = 'none';
-            }
-        }
-
-        window.closeCheckoutModal = function() { checkoutModal.classList.remove('open'); }
-
-        window.clearSavedData = function() {
-            localStorage.removeItem('omni_user');
-            document.getElementById('c-name').value = '';
-            document.getElementById('c-phone').value = '';
-            document.getElementById('c-hostel').selectedIndex = 0;
-            document.getElementById('clear-data-section').style.display = 'none';
-            alert("Saved details cleared!");
-        }
-
-        window.goToPayment = function(e) {
-            e.preventDefault();
-            const user = { name: document.getElementById('c-name').value, phone: document.getElementById('c-phone').value, hostel: document.getElementById('c-hostel').value };
-            localStorage.setItem('omni_user', JSON.stringify(user));
+            // Hide Step 1 & 2
             document.getElementById('checkout-step-1').style.display = 'none';
-            document.getElementById('checkout-step-2').style.display = 'block';
-        }
-
-        window.backToAddress = function() {
             document.getElementById('checkout-step-2').style.display = 'none';
-            document.getElementById('checkout-step-1').style.display = 'block';
-        }
 
-        window.backToPaymentSelect = function() {
-            document.getElementById('checkout-step-3').style.display = 'none';
-            document.getElementById('checkout-step-4-app').style.display = 'none';
-            document.getElementById('checkout-step-2').style.display = 'block';
-            localStorage.removeItem('omni_payment_pending');
-            clearInterval(timerInterval);
-        }
-
-        /* --- PAYMENT LOGIC --- */
-        let timerInterval;
-
-        window.showQRSection = function() {
-            document.getElementById('checkout-step-2').style.display = 'none';
-            document.getElementById('checkout-step-3').style.display = 'block';
-            localStorage.setItem('omni_payment_pending', 'true');
-            localStorage.setItem('omni_payment_method', 'qr');
-            
-            let subtotal = 0;
-            cart.forEach(item => subtotal += item.price);
-            const dynamicDelivery = getDynamicDeliveryCharge();
-            const finalTotal = subtotal + dynamicDelivery + PLATFORM_FEE;
-            
-            document.getElementById('qr-amount').innerText = '₹' + finalTotal.toLocaleString();
-            const upiLink = `upi://pay?pa=manjeetkeshrihkp@oksbi&pn=OMNI&am=${finalTotal}&cu=INR`;
-            document.getElementById('dynamic-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
-            
-            const expiry = Date.now() + 180000;
-            localStorage.setItem('omni_payment_expiry', expiry);
-            startTimer(180, 'timer'); 
-        }
-
-        window.startAppPayment = function() {
-            document.getElementById('payment-loader').style.display = 'flex';
-            setTimeout(() => {
+            if (method === 'qr') {
+                document.getElementById('checkout-step-3').style.display = 'block';
+                document.getElementById('checkout-step-4-app').style.display = 'none';
+                
+                // Re-render QR details
                 let subtotal = 0;
                 cart.forEach(item => subtotal += item.price);
                 const dynamicDelivery = getDynamicDeliveryCharge();
                 const finalTotal = subtotal + dynamicDelivery + PLATFORM_FEE;
+                document.getElementById('qr-amount').innerText = '₹' + finalTotal.toLocaleString();
                 
-                localStorage.setItem('omni_payment_pending', 'true');
-                localStorage.setItem('omni_payment_method', 'app');
-                const expiry = Date.now() + 180000;
-                localStorage.setItem('omni_payment_expiry', expiry);
-                
-                window.location.href = `upi://pay?pa=manjeetkeshrihkp@oksbi&pn=OMNI&am=${finalTotal}&cu=INR`;
-                setTimeout(() => {
-                    document.getElementById('payment-loader').style.display = 'none';
-                    document.getElementById('checkout-step-2').style.display = 'none';
-                    document.getElementById('checkout-step-4-app').style.display = 'block';
-                    startTimer(180, 'app-timer');
-                }, 1500);
-            }, 2000);
-        }
+                const upiID = "manjeetkeshrihkp@oksbi";
+                const upiLink = `upi://pay?pa=${upiID}&pn=OMNI&am=${finalTotal}&cu=INR`;
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+                document.getElementById('dynamic-qr').src = qrUrl;
 
-        /* --- FIXED TIMER LOGIC --- */
-        function startTimer(duration, displayId) {
-            let timer = duration;
-            const display = document.getElementById(displayId);
-            if (!display) return;
-
-            // Immediate update
-            updateTimerDisplay(timer, display);
-
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                timer--;
-                if (timer < 0) {
-                    handleExpiredSession();
-                    return;
+                // Resume Timer with Robust Logic
+                const expiry = localStorage.getItem('omni_payment_expiry');
+                if (expiry) {
+                    let remaining = Math.floor((parseInt(expiry) - Date.now()) / 1000);
+                    if (remaining > 0) {
+                        startTimer(remaining, 'timer');
+                    } else {
+                        handleExpiredSession();
+                    }
                 }
-                updateTimerDisplay(timer, display);
-            }, 1000);
-        }
 
-        function updateTimerDisplay(time, displayElement) {
-            let minutes = parseInt(time / 60, 10);
-            let seconds = parseInt(time % 60, 10);
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            displayElement.textContent = minutes + ":" + seconds;
+            } else if (method === 'app') {
+                document.getElementById('checkout-step-4-app').style.display = 'block';
+                
+                // Resume Timer
+                const expiry = localStorage.getItem('omni_payment_expiry');
+                if (expiry) {
+                    let remaining = Math.floor((parseInt(expiry) - Date.now()) / 1000);
+                    if (remaining > 0) {
+                        startTimer(remaining, 'app-timer');
+                    } else {
+                        handleExpiredSession();
+                    }
+                }
+            }
         }
+        
+        // Step-by-Step Data Capture
+        ['c-name', 'c-phone', 'c-hostel'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.addEventListener('change', () => {
+                const user = { name: document.getElementById('c-name').value, phone: document.getElementById('c-phone').value, hostel: document.getElementById('c-hostel').value };
+                localStorage.setItem('omni_user', JSON.stringify(user));
+            });
+        });
+    });
 
-        function handleExpiredSession() {
+    const addBtns = document.querySelectorAll('.add-to-cart-btn');
+    addBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const card = e.target.closest('.product-card');
+            const title = card.querySelector('.product-title').innerText;
+            const priceStr = card.querySelector('.current-price').innerText;
+            const imgSrc = card.querySelector('.product-img').src;
+            const price = parseInt(priceStr.replace(/[^\d]/g, ''));
+            cart.push({ title, price, imgSrc });
+            localStorage.setItem('omni_cart', JSON.stringify(cart));
+            updateCartUI();
+            showToast();
+        });
+    });
+
+    function updateCartUI() {
+        if(cartCountEl) {
+            cartCountEl.innerText = cart.length;
+            cartCountEl.style.display = cart.length > 0 ? 'block' : 'none';
+        }
+        if(cartItemsContainer) {
+            cartItemsContainer.innerHTML = '';
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p class="empty-cart-msg">Your bag is empty.</p>';
+                if(cartTotalEl) cartTotalEl.innerText = '₹0';
+                return;
+            }
+            let subtotal = 0;
+            cart.forEach((item, index) => {
+                subtotal += item.price;
+                const itemEl = document.createElement('div');
+                itemEl.classList.add('cart-item');
+                itemEl.innerHTML = `<img src="${item.imgSrc}" class="cart-item-img"><div class="cart-item-details"><div class="cart-item-title">${item.title}</div><div class="cart-item-price">₹${item.price.toLocaleString()}</div></div><i class="fas fa-trash remove-btn" onclick="removeItem(${index})"></i>`;
+                cartItemsContainer.appendChild(itemEl);
+            });
+            if(cartTotalEl) cartTotalEl.innerText = '₹' + subtotal.toLocaleString();
+        }
+    }
+
+    window.removeItem = function(index) {
+        cart.splice(index, 1);
+        localStorage.setItem('omni_cart', JSON.stringify(cart));
+        updateCartUI();
+    }
+
+    function showToast() {
+        toast.className = "toast show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    function openCart() { cartSidebar.classList.add('open'); cartOverlay.classList.add('open'); }
+    function closeCart() { cartSidebar.classList.remove('open'); cartOverlay.classList.remove('open'); }
+
+    /* --- CHECKOUT FUNCTIONS --- */
+    window.openCheckoutModal = function(isReturningPayment = false) {
+        // --- BUG FIX: RESET STATE FOR NEW CHECKOUTS ---
+        if (!isReturningPayment) {
             clearInterval(timerInterval);
-            alert("Session expired!");
-            localStorage.removeItem('omni_payment_pending');
-            window.location.reload();
-        }
-
-        window.cancelAppPayment = function() {
             localStorage.removeItem('omni_payment_pending');
             localStorage.removeItem('omni_payment_method');
             localStorage.removeItem('omni_payment_expiry');
-            clearInterval(timerInterval);
-            window.location.reload();
+            
+            // Reset UI Visibility
+            document.getElementById('checkout-step-1').style.display = 'block';
+            document.getElementById('checkout-step-2').style.display = 'none';
+            document.getElementById('checkout-step-3').style.display = 'none';
+            document.getElementById('checkout-step-4-app').style.display = 'none';
+        }
+        
+        if (!isReturningPayment && cart.length === 0) { alert("Your bag is empty!"); return; }
+        
+        const savedData = JSON.parse(localStorage.getItem('omni_user'));
+        if(savedData) {
+            document.getElementById('c-name').value = savedData.name || "";
+            document.getElementById('c-phone').value = savedData.phone || "";
+            document.getElementById('c-hostel').value = savedData.hostel || "";
+            document.getElementById('clear-data-section').style.display = 'flex';
+            document.getElementById('welcome-user-msg').innerText = `Welcome back, ${savedData.name}!`;
+        }
+        
+        // CALC TOTALS WITH DYNAMIC DELIVERY
+        let subtotal = 0;
+        cart.forEach(item => subtotal += item.price);
+        const dynamicDelivery = getDynamicDeliveryCharge();
+        const finalTotal = subtotal + dynamicDelivery + PLATFORM_FEE;
+        
+        billSubtotalEl.innerText = '₹' + subtotal.toLocaleString();
+        
+        // Find delivery row and update
+        const billRows = document.querySelectorAll('.bill-summary .bill-row');
+        if(billRows.length > 1) {
+            billRows[1].querySelector('span:last-child').innerText = '₹' + dynamicDelivery;
         }
 
-        window.verifyAndSubmitOrder = function(method) {
-            const txnId = document.getElementById(method === 'qr' ? 'txn-id-qr' : 'txn-id-app').value;
-            if(txnId.length < 8) { alert("Enter valid Transaction ID"); return; }
-            finishOrder(txnId);
+        billTotalEl.innerText = '₹' + finalTotal.toLocaleString();
+        document.getElementById('payment-step-total').innerText = '₹' + finalTotal.toLocaleString();
+        
+        closeCart();
+        checkoutModal.classList.add('open');
+        
+        if(isReturningPayment) {
+            document.getElementById('checkout-step-1').style.display = 'none';
+            document.getElementById('checkout-step-2').style.display = 'none';
         }
+    }
 
-        /* --- GOOGLE FORM SUBMISSION & HISTORY SAVING --- */
-        window.finishOrder = function(txnId) {
-            const orderId = 'ORD' + Math.floor(Math.random() * 1000000);
+    window.closeCheckoutModal = function() { 
+        checkoutModal.classList.remove('open');
+        // --- BUG FIX: STOP TIMER AND CLEAR PENDING IF USER MANUALLY CLOSES ---
+        clearInterval(timerInterval);
+        localStorage.removeItem('omni_payment_pending');
+    }
+
+    window.clearSavedData = function() {
+        localStorage.removeItem('omni_user');
+        document.getElementById('c-name').value = '';
+        document.getElementById('c-phone').value = '';
+        document.getElementById('c-hostel').selectedIndex = 0;
+        document.getElementById('clear-data-section').style.display = 'none';
+        alert("Saved details cleared!");
+    }
+
+    window.goToPayment = function(e) {
+        e.preventDefault();
+        const user = { name: document.getElementById('c-name').value, phone: document.getElementById('c-phone').value, hostel: document.getElementById('c-hostel').value };
+        localStorage.setItem('omni_user', JSON.stringify(user));
+        document.getElementById('checkout-step-1').style.display = 'none';
+        document.getElementById('checkout-step-2').style.display = 'block';
+    }
+
+    window.backToAddress = function() {
+        document.getElementById('checkout-step-2').style.display = 'none';
+        document.getElementById('checkout-step-1').style.display = 'block';
+    }
+
+    window.backToPaymentSelect = function() {
+        document.getElementById('checkout-step-3').style.display = 'none';
+        document.getElementById('checkout-step-4-app').style.display = 'none';
+        document.getElementById('checkout-step-2').style.display = 'block';
+        localStorage.removeItem('omni_payment_pending');
+        clearInterval(timerInterval);
+    }
+
+    /* --- PAYMENT LOGIC --- */
+    let timerInterval;
+
+    window.showQRSection = function() {
+        document.getElementById('checkout-step-2').style.display = 'none';
+        document.getElementById('checkout-step-3').style.display = 'block';
+        localStorage.setItem('omni_payment_pending', 'true');
+        localStorage.setItem('omni_payment_method', 'qr');
+        
+        let subtotal = 0;
+        cart.forEach(item => subtotal += item.price);
+        const dynamicDelivery = getDynamicDeliveryCharge();
+        const finalTotal = subtotal + dynamicDelivery + PLATFORM_FEE;
+        
+        document.getElementById('qr-amount').innerText = '₹' + finalTotal.toLocaleString();
+        const upiLink = `upi://pay?pa=manjeetkeshrihkp@oksbi&pn=OMNI&am=${finalTotal}&cu=INR`;
+        document.getElementById('dynamic-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+        
+        const expiry = Date.now() + 180000;
+        localStorage.setItem('omni_payment_expiry', expiry);
+        startTimer(180, 'timer'); 
+    }
+
+    window.startAppPayment = function() {
+        document.getElementById('payment-loader').style.display = 'flex';
+        setTimeout(() => {
             let subtotal = 0;
-            let itemsList = "";
-            cart.forEach(item => {
-                subtotal += item.price;
-                itemsList += `${item.title} (₹${item.price}) | `;
-            });
-            
+            cart.forEach(item => subtotal += item.price);
             const dynamicDelivery = getDynamicDeliveryCharge();
-            const total = subtotal + dynamicDelivery + PLATFORM_FEE;
-            const user = JSON.parse(localStorage.getItem('omni_user'));
-
-            // SAVE DATA INCLUDING DYNAMIC CHARGE
-            const history = JSON.parse(localStorage.getItem('omni_order_history')) || [];
-            history.unshift({ 
-                id: '#' + orderId, 
-                date: new Date().toLocaleDateString(), 
-                items: [...cart], 
-                itemSubtotal: subtotal,
-                delivery: dynamicDelivery, 
-                platform: PLATFORM_FEE,   
-                total: total, 
-                status: "Processing" 
-            });
-            localStorage.setItem('omni_order_history', JSON.stringify(history));
-
-            const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSchH1TTV2xGTEKiZzsW2gk8ndIQThOC__J-x2n5-QQa7uTsBQ/formResponse";
-            const body = new URLSearchParams();
-            body.append("entry.1661471619", orderId);
-            body.append("entry.1343328677", user.name);
-            body.append("entry.1735888749", user.phone);
-            body.append("entry.385864934", user.hostel);
-            body.append("entry.665325514", itemsList);
-            body.append("entry.344688394", total);
-            body.append("entry.1266334251", txnId);
-
-            fetch(formURL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: body.toString()
-            }).then(() => {
-                showSuccessScreen(user, orderId, subtotal, total, dynamicDelivery);
-            }).catch(() => {
-                showSuccessScreen(user, orderId, subtotal, total, dynamicDelivery);
-            });
-        }
-
-        function showSuccessScreen(user, orderId, subtotal, total, deliveryCharge) {
-            document.getElementById('inv-name').innerText = user.name;
-            document.getElementById('inv-phone').innerText = user.phone;
-            document.getElementById('inv-hostel').innerText = user.hostel;
-            document.getElementById('inv-order-id').innerText = orderId;
-            document.getElementById('inv-date').innerText = new Date().toLocaleDateString();
-            document.getElementById('final-order-id').innerText = '#' + orderId;
-            document.getElementById('success-bill-total').innerText = '₹' + total.toLocaleString();
+            const finalTotal = subtotal + dynamicDelivery + PLATFORM_FEE;
             
-            const successBillItems = document.getElementById('success-bill-items');
-            successBillItems.innerHTML = '';
-            const invItemsTable = document.getElementById('inv-items');
-            invItemsTable.innerHTML = '';
-
-            cart.forEach(item => {
-                successBillItems.innerHTML += `<div class="os-item-row"><span>${item.title}</span><span>₹${item.price}</span></div>`;
-                invItemsTable.innerHTML += `<tr><td>${item.title}</td><td>₹${item.price.toLocaleString()}</td></tr>`;
-            });
+            localStorage.setItem('omni_payment_pending', 'true');
+            localStorage.setItem('omni_payment_method', 'app');
+            const expiry = Date.now() + 180000;
+            localStorage.setItem('omni_payment_expiry', expiry);
             
-            successBillItems.innerHTML += `<div class="os-item-row" style="border-top:1px dashed #444; margin-top:5px; padding-top:5px;"><span>Delivery Charge</span><span>₹${deliveryCharge}</span></div>`;
-            successBillItems.innerHTML += `<div class="os-item-row"><span>Platform Fee</span><span>₹${PLATFORM_FEE}</span></div>`;
-            
-            document.getElementById('inv-subtotal').innerText = '₹' + subtotal.toLocaleString();
-            document.getElementById('inv-total').innerText = '₹' + total.toLocaleString();
+            window.location.href = `upi://pay?pa=manjeetkeshrihkp@oksbi&pn=OMNI&am=${finalTotal}&cu=INR`;
+            setTimeout(() => {
+                document.getElementById('payment-loader').style.display = 'none';
+                document.getElementById('checkout-step-2').style.display = 'none';
+                document.getElementById('checkout-step-4-app').style.display = 'block';
+                startTimer(180, 'app-timer');
+            }, 1500);
+        }, 2000);
+    }
 
-            // WHATSAPP BUTTON
-            const successCard = document.querySelector('.success-card');
-            if(!document.getElementById('wa-channel-btn')) {
-                const waBtn = document.createElement('a');
-                waBtn.id = 'wa-channel-btn';
-                waBtn.href = 'https://whatsapp.com/channel/0029VaF69Xq42DcVwzY8mO0y'; // YOUR LINK
-                waBtn.target = '_blank';
-                waBtn.className = 'whatsapp-glow-btn';
-                waBtn.innerHTML = '<i class="fab fa-whatsapp"></i> JOIN WHATSAPP CHANNEL FOR OFFERS';
-                successCard.insertBefore(waBtn, document.querySelector('.download-btn'));
-            }
+    /* --- FIXED TIMER LOGIC --- */
+    function startTimer(duration, displayId) {
+        let timer = duration;
+        const display = document.getElementById(displayId);
+        if (!display) return;
 
-            document.getElementById('checkout-modal').classList.remove('open');
-            document.getElementById('order-success-screen').style.display = 'flex';
-            cart = [];
-            localStorage.removeItem('omni_cart');
-            localStorage.removeItem('omni_payment_pending');
-            updateCartUI();
-        }
+        // Immediate update
+        updateTimerDisplay(timer, display);
 
-        window.downloadInvoice = function() { window.print(); }
-        window.closeSuccessScreen = function() { window.location.reload(); }
-
-        /* --- PROFILE & ORDER HISTORY --- */
-        function openProfile() {
-            document.getElementById('profile-modal').classList.add('open');
-            loadProfileData(); 
-        }
-        function closeProfile() { document.getElementById('profile-modal').classList.remove('open'); }
-        function showEditView() {
-            document.getElementById('profile-main-menu').style.display = 'none';
-            document.getElementById('profile-edit-view').style.display = 'block';
-        }
-        function showOrdersView() {
-            document.getElementById('profile-main-menu').style.display = 'none';
-            document.getElementById('profile-orders-view').style.display = 'block';
-            renderOrderHistory();
-        }
-        function showMainView() {
-            document.getElementById('profile-edit-view').style.display = 'none';
-            document.getElementById('profile-orders-view').style.display = 'none';
-            document.getElementById('profile-main-menu').style.display = 'block';
-        }
-
-        function renderOrderHistory() {
-            const container = document.getElementById('orders-list-container');
-            const history = JSON.parse(localStorage.getItem('omni_order_history')) || [];
-            container.innerHTML = '';
-
-            if (!history.length) {
-                container.innerHTML = '<div style="text-align:center; padding:50px 20px; color:#888;"><i class="fas fa-shopping-bag" style="font-size:30px; margin-bottom:15px;"></i><p>No orders yet.</p></div>';
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timer--;
+            if (timer < 0) {
+                handleExpiredSession();
                 return;
             }
+            updateTimerDisplay(timer, display);
+        }, 1000);
+    }
 
-            history.forEach((order, index) => {
-                const itemNames = order.items.map(i => i.title).join(", ");
-                const card = document.createElement('div');
-                card.id = `history-card-${index}`;
-                card.className = 'history-card';
-                card.style = "background:#222; border-radius:15px; padding:15px; margin-bottom:15px; border:1px solid #333; transition: all 0.3s;";
-                
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <span style="font-size:12px; color:#e6f014; font-weight:bold;">${order.id}</span>
-                        <span style="font-size:11px; color:#888;">${order.date}</span>
-                    </div>
-                    <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
-                        <img src="${order.items[0].imgSrc}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
-                        <div style="flex:1;">
-                            <h4 style="font-size:13px; color:#fff; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;">${itemNames}</h4>
-                            <p style="font-size:14px; color:#e6f014; font-weight:bold;">₹${order.total.toLocaleString()}</p>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <button onclick="reorderItems(${index})" style="flex:1; padding:8px; background:#e6f014; color:#000; border:none; border-radius:6px; font-weight:bold; font-size:11px; cursor:pointer;">REORDER</button>
-                        <button onclick="toggleHistoryDetails(${index})" style="flex:1; padding:8px; background:transparent; border:1px solid #444; color:#ccc; border-radius:6px; font-size:11px; cursor:pointer;">DETAILS</button>
-                    </div>
-                    <div id="history-details-${index}" style="display:none; margin-top:15px; padding-top:15px; border-top:1px dashed #444;">
-                        <h5 style="color:#e6f014; font-size:11px; text-transform:uppercase; margin-bottom:10px; letter-spacing:1px;">Bill Summary</h5>
-                        <div style="display:flex; justify-content:space-between; font-size:12px; color:#ccc; margin-bottom:5px;"><span>Item Total</span><span>₹${(order.itemSubtotal || 0).toLocaleString()}</span></div>
-                        <div style="display:flex; justify-content:space-between; font-size:12px; color:#ccc; margin-bottom:5px;"><span>Delivery Charge</span><span>₹${(order.delivery || 40)}</span></div>
-                        <div style="display:flex; justify-content:space-between; font-size:12px; color:#ccc; margin-bottom:10px;"><span>Platform Fee</span><span>₹${(order.platform || 5)}</span></div>
-                        <div style="display:flex; justify-content:space-between; font-size:14px; color:#fff; font-weight:bold; border-top:1px solid #333; padding-top:8px;"><span>Grand Total</span><span style="color:#e6f014;">₹${order.total.toLocaleString()}</span></div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+    function updateTimerDisplay(time, displayElement) {
+        let minutes = parseInt(time / 60, 10);
+        let seconds = parseInt(time % 60, 10);
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+        displayElement.textContent = minutes + ":" + seconds;
+    }
+
+    function handleExpiredSession() {
+        clearInterval(timerInterval);
+        alert("Session expired!");
+        localStorage.removeItem('omni_payment_pending');
+        window.location.reload();
+    }
+
+    window.cancelAppPayment = function() {
+        localStorage.removeItem('omni_payment_pending');
+        localStorage.removeItem('omni_payment_method');
+        localStorage.removeItem('omni_payment_expiry');
+        clearInterval(timerInterval);
+        window.location.reload();
+    }
+
+    window.verifyAndSubmitOrder = function(method) {
+        const txnId = document.getElementById(method === 'qr' ? 'txn-id-qr' : 'txn-id-app').value;
+        if(txnId.length < 8) { alert("Enter valid Transaction ID"); return; }
+        finishOrder(txnId);
+    }
+
+    /* --- GOOGLE FORM SUBMISSION & HISTORY SAVING --- */
+    window.finishOrder = function(txnId) {
+        const orderId = 'ORD' + Math.floor(Math.random() * 1000000);
+        let subtotal = 0;
+        let itemsList = "";
+        cart.forEach(item => {
+            subtotal += item.price;
+            itemsList += `${item.title} (₹${item.price}) | `;
+        });
+        
+        const dynamicDelivery = getDynamicDeliveryCharge();
+        const total = subtotal + dynamicDelivery + PLATFORM_FEE;
+        const user = JSON.parse(localStorage.getItem('omni_user'));
+
+        // SAVE DATA INCLUDING DYNAMIC CHARGE
+        const history = JSON.parse(localStorage.getItem('omni_order_history')) || [];
+        history.unshift({ 
+            id: '#' + orderId, 
+            date: new Date().toLocaleDateString(), 
+            items: [...cart], 
+            itemSubtotal: subtotal,
+            delivery: dynamicDelivery, 
+            platform: PLATFORM_FEE,   
+            total: total, 
+            status: "Processing" 
+        });
+        localStorage.setItem('omni_order_history', JSON.stringify(history));
+
+        const formURL = "https://docs.google.com/forms/d/e/1FAIpQLSchH1TTV2xGTEKiZzsW2gk8ndIQThOC__J-x2n5-QQa7uTsBQ/formResponse";
+        const body = new URLSearchParams();
+        body.append("entry.1661471619", orderId);
+        body.append("entry.1343328677", user.name);
+        body.append("entry.1735888749", user.phone);
+        body.append("entry.385864934", user.hostel);
+        body.append("entry.665325514", itemsList);
+        body.append("entry.344688394", total);
+        body.append("entry.1266334251", txnId);
+
+        fetch(formURL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: body.toString()
+        }).then(() => {
+            showSuccessScreen(user, orderId, subtotal, total, dynamicDelivery);
+        }).catch(() => {
+            showSuccessScreen(user, orderId, subtotal, total, dynamicDelivery);
+        });
+    }
+
+    function showSuccessScreen(user, orderId, subtotal, total, deliveryCharge) {
+        document.getElementById('inv-name').innerText = user.name;
+        document.getElementById('inv-phone').innerText = user.phone;
+        document.getElementById('inv-hostel').innerText = user.hostel;
+        document.getElementById('inv-order-id').innerText = orderId;
+        document.getElementById('inv-date').innerText = new Date().toLocaleDateString();
+        document.getElementById('final-order-id').innerText = '#' + orderId;
+        document.getElementById('success-bill-total').innerText = '₹' + total.toLocaleString();
+        
+        const successBillItems = document.getElementById('success-bill-items');
+        successBillItems.innerHTML = '';
+        const invItemsTable = document.getElementById('inv-items');
+        invItemsTable.innerHTML = '';
+
+        cart.forEach(item => {
+            successBillItems.innerHTML += `<div class="os-item-row"><span>${item.title}</span><span>₹${item.price}</span></div>`;
+            invItemsTable.innerHTML += `<tr><td>${item.title}</td><td>₹${item.price.toLocaleString()}</td></tr>`;
+        });
+        
+        successBillItems.innerHTML += `<div class="os-item-row" style="border-top:1px dashed #444; margin-top:5px; padding-top:5px;"><span>Delivery Charge</span><span>₹${deliveryCharge}</span></div>`;
+        successBillItems.innerHTML += `<div class="os-item-row"><span>Platform Fee</span><span>₹${PLATFORM_FEE}</span></div>`;
+        
+        document.getElementById('inv-subtotal').innerText = '₹' + subtotal.toLocaleString();
+        document.getElementById('inv-total').innerText = '₹' + total.toLocaleString();
+
+        // WHATSAPP BUTTON
+        const successCard = document.querySelector('.success-card');
+        if(!document.getElementById('wa-channel-btn')) {
+            const waBtn = document.createElement('a');
+            waBtn.id = 'wa-channel-btn';
+            waBtn.href = 'https://whatsapp.com/channel/0029VaF69Xq42DcVwzY8mO0y'; // YOUR LINK
+            waBtn.target = '_blank';
+            waBtn.className = 'whatsapp-glow-btn';
+            waBtn.innerHTML = '<i class="fab fa-whatsapp"></i> JOIN WHATSAPP CHANNEL FOR OFFERS';
+            successCard.insertBefore(waBtn, document.querySelector('.download-btn'));
         }
 
-        window.toggleHistoryDetails = function(index) {
-            const detailDiv = document.getElementById(`history-details-${index}`);
-            detailDiv.style.display = detailDiv.style.display === "none" ? "block" : "none";
+        document.getElementById('checkout-modal').classList.remove('open');
+        document.getElementById('order-success-screen').style.display = 'flex';
+        cart = [];
+        localStorage.removeItem('omni_cart');
+        localStorage.removeItem('omni_payment_pending');
+        updateCartUI();
+    }
+
+    window.downloadInvoice = function() { window.print(); }
+    window.closeSuccessScreen = function() { window.location.reload(); }
+
+    /* --- PROFILE & ORDER HISTORY --- */
+    function openProfile() {
+        document.getElementById('profile-modal').classList.add('open');
+        loadProfileData(); 
+    }
+    function closeProfile() { document.getElementById('profile-modal').classList.remove('open'); }
+    function showEditView() {
+        document.getElementById('profile-main-menu').style.display = 'none';
+        document.getElementById('profile-edit-view').style.display = 'block';
+    }
+    function showOrdersView() {
+        document.getElementById('profile-main-menu').style.display = 'none';
+        document.getElementById('profile-orders-view').style.display = 'block';
+        renderOrderHistory();
+    }
+    function showMainView() {
+        document.getElementById('profile-edit-view').style.display = 'none';
+        document.getElementById('profile-orders-view').style.display = 'none';
+        document.getElementById('profile-main-menu').style.display = 'block';
+    }
+
+    function renderOrderHistory() {
+        const container = document.getElementById('orders-list-container');
+        const history = JSON.parse(localStorage.getItem('omni_order_history')) || [];
+        container.innerHTML = '';
+
+        if (!history.length) {
+            container.innerHTML = '<div style="text-align:center; padding:50px 20px; color:#888;"><i class="fas fa-shopping-bag" style="font-size:30px; margin-bottom:15px;"></i><p>No orders yet.</p></div>';
+            return;
         }
 
-        window.reorderItems = function(index) {
-            const history = JSON.parse(localStorage.getItem('omni_order_history')) || [];
-            const order = history[index];
-            if (order && order.items) {
-                cart = [...cart, ...order.items];
-                localStorage.setItem('omni_cart', JSON.stringify(cart));
-                updateCartUI();
-                closeProfile();
-                openCart();
-                showToast();
-            }
-        }
+        history.forEach((order, index) => {
+            const itemNames = order.items.map(i => i.title).join(", ");
+            const card = document.createElement('div');
+            card.id = `history-card-${index}`;
+            card.className = 'history-card';
+            card.style = "background:#222; border-radius:15px; padding:15px; margin-bottom:15px; border:1px solid #333; transition: all 0.3s;";
+            
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span style="font-size:12px; color:#e6f014; font-weight:bold;">${order.id}</span>
+                    <span style="font-size:11px; color:#888;">${order.date}</span>
+                </div>
+                <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+                    <img src="${order.items[0].imgSrc}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
+                    <div style="flex:1;">
+                        <h4 style="font-size:13px; color:#fff; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;">${itemNames}</h4>
+                        <p style="font-size:14px; color:#e6f014; font-weight:bold;">₹${order.total.toLocaleString()}</p>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="reorderItems(${index})" style="flex:1; padding:8px; background:#e6f014; color:#000; border:none; border-radius:6px; font-weight:bold; font-size:11px; cursor:pointer;">REORDER</button>
+                    <button onclick="toggleHistoryDetails(${index})" style="flex:1; padding:8px; background:transparent; border:1px solid #444; color:#ccc; border-radius:6px; font-size:11px; cursor:pointer;">DETAILS</button>
+                </div>
+                <div id="history-details-${index}" style="display:none; margin-top:15px; padding-top:15px; border-top:1px dashed #444;">
+                    <h5 style="color:#e6f014; font-size:11px; text-transform:uppercase; margin-bottom:10px; letter-spacing:1px;">Bill Summary</h5>
+                    <div style="display:flex; justify-content:space-between; font-size:12px; color:#ccc; margin-bottom:5px;"><span>Item Total</span><span>₹${(order.itemSubtotal || 0).toLocaleString()}</span></div>
+                    <div style="display:flex; justify-content:space-between; font-size:12px; color:#ccc; margin-bottom:5px;"><span>Delivery Charge</span><span>₹${(order.delivery || 40)}</span></div>
+                    <div style="display:flex; justify-content:space-between; font-size:12px; color:#ccc; margin-bottom:10px;"><span>Platform Fee</span><span>₹${(order.platform || 5)}</span></div>
+                    <div style="display:flex; justify-content:space-between; font-size:14px; color:#fff; font-weight:bold; border-top:1px solid #333; padding-top:8px;"><span>Grand Total</span><span style="color:#e6f014;">₹${order.total.toLocaleString()}</span></div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
 
-        function loadProfileData() {
-            const user = JSON.parse(localStorage.getItem('omni_user'));
-            if(user) {
-                document.getElementById('menu-user-name').innerText = user.name || "Guest";
-                document.getElementById('p-name').value = user.name || "";
-                document.getElementById('p-phone').value = user.phone || "";
-                document.getElementById('p-hostel').value = user.hostel || "";
-            }
+    window.toggleHistoryDetails = function(index) {
+        const detailDiv = document.getElementById(`history-details-${index}`);
+        detailDiv.style.display = detailDiv.style.display === "none" ? "block" : "none";
+    }
+
+    window.reorderItems = function(index) {
+        const history = JSON.parse(localStorage.getItem('omni_order_history')) || [];
+        const order = history[index];
+        if (order && order.items) {
+            cart = [...cart, ...order.items];
+            localStorage.setItem('omni_cart', JSON.stringify(cart));
+            updateCartUI();
+            closeProfile();
+            openCart();
+            showToast();
         }
-        function saveProfileData() {
-            const user = { name: document.getElementById('p-name').value, phone: document.getElementById('p-phone').value, hostel: document.getElementById('p-hostel').value };
-            localStorage.setItem('omni_user', JSON.stringify(user));
-            alert("Profile Saved!");
-            showMainView();
+    }
+
+    function loadProfileData() {
+        const user = JSON.parse(localStorage.getItem('omni_user'));
+        if(user) {
+            document.getElementById('menu-user-name').innerText = user.name || "Guest";
+            document.getElementById('p-name').value = user.name || "";
+            document.getElementById('p-phone').value = user.phone || "";
+            document.getElementById('p-hostel').value = user.hostel || "";
         }
-        function clearProfileData() {
-            if(confirm("Sign Out?")) {
-                localStorage.removeItem('omni_user');
-                window.location.reload();
-            }
+    }
+    function saveProfileData() {
+        const user = { name: document.getElementById('p-name').value, phone: document.getElementById('p-phone').value, hostel: document.getElementById('p-hostel').value };
+        localStorage.setItem('omni_user', JSON.stringify(user));
+        alert("Profile Saved!");
+        showMainView();
+    }
+    function clearProfileData() {
+        if(confirm("Sign Out?")) {
+            localStorage.removeItem('omni_user');
+            window.location.reload();
         }
-    </script>
+    }
+</script>
 </body>
 </html>
